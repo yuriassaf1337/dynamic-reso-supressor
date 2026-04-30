@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$REPO_ROOT/scripts/config.sh"
+
+BUILD_PATH="$REPO_ROOT/$BUILD_DIR"
+VST3_BUNDLE="$BUILD_PATH/${PLUGIN_NAME}_artefacts/$BUILD_TYPE/VST3/${PLUGIN_NAME}.vst3"
+
+# ── commands ──────────────────────────────────────────────────────────────────
+
+cmd_build() {
+    if [[ ! -d "$BUILD_PATH" ]]; then
+        echo "==> configuring cmake in $BUILD_DIR/ ..."
+
+        local cmake_args=(
+            -S "$REPO_ROOT"
+            -B "$BUILD_PATH"
+            -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+        )
+
+        if [[ -n "$TOOLCHAIN_FILE" ]]; then
+            cmake_args+=(-DCMAKE_TOOLCHAIN_FILE="$REPO_ROOT/$TOOLCHAIN_FILE")
+        fi
+
+        cmake "${cmake_args[@]}"
+        echo "==> configured."
+    fi
+
+    echo "==> building ${PLUGIN_NAME} (${BUILD_TYPE}, ${JOBS} jobs) ..."
+    cmake --build "$BUILD_PATH" --target "${PLUGIN_NAME}_VST3" -- -j"$JOBS"
+    echo "==> done."
+}
+
+cmd_install() {
+    if [[ ! -d "$VST3_BUNDLE" ]]; then
+        echo "error: bundle not found at $VST3_BUNDLE"
+        echo "       run './drs build' first."
+        exit 1
+    fi
+
+    echo "==> installing ${PLUGIN_NAME}.vst3 ..."
+    echo "    -> $VST3_INSTALL_DIR"
+    mkdir -p "$VST3_INSTALL_DIR"
+    cp -r "$VST3_BUNDLE" "$VST3_INSTALL_DIR/"
+    echo "==> done."
+}
+
+cmd_clean() {
+    echo "==> wiping $BUILD_DIR/ ..."
+    rm -rf "$BUILD_PATH"
+    echo "==> done."
+}
+
+cmd_rebuild() {
+    cmd_clean
+    cmd_build
+    cmd_install
+}
+
+cmd_help() {
+    cat <<EOF
+usage: ./drs <command>
+
+commands:
+  build     configure (if needed) and build the vst3
+  install   copy the built .vst3 bundle to \$VST3_INSTALL_DIR
+  rebuild   clean + build + install in one shot
+  clean     wipe the build directory
+  help      show this message
+
+config (set via env or scripts/config.sh):
+  BUILD_DIR         $BUILD_DIR
+  BUILD_TYPE        $BUILD_TYPE
+  JOBS              $JOBS
+  TOOLCHAIN_FILE    ${TOOLCHAIN_FILE:-<none, native build>}
+  VST3_INSTALL_DIR  $VST3_INSTALL_DIR
+  PLUGIN_NAME       $PLUGIN_NAME
+EOF
+}
+
+# ── dispatch ──────────────────────────────────────────────────────────────────
+
+case "${1:-help}" in
+    build)   cmd_build   ;;
+    install) cmd_install ;;
+    rebuild) cmd_rebuild ;;
+    clean)   cmd_clean   ;;
+    help|--help|-h) cmd_help ;;
+    *)
+        echo "error: unknown command '$1'"
+        echo "       run './drs help' for usage."
+        exit 1
+        ;;
+esac

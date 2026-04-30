@@ -10,7 +10,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-DynamicEqualizerAudioProcessor::DynamicEqualizerAudioProcessor()
+DynResoSuppressorProcessor::DynResoSuppressorProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -37,7 +37,7 @@ DynamicEqualizerAudioProcessor::DynamicEqualizerAudioProcessor()
     apvts.addParameterListener("fftsize", this);
 }
 
-DynamicEqualizerAudioProcessor::~DynamicEqualizerAudioProcessor()
+DynResoSuppressorProcessor::~DynResoSuppressorProcessor()
 {
     apvts.removeParameterListener ("prominence", this);
     apvts.removeParameterListener ("onlyDiff", this);
@@ -53,12 +53,12 @@ DynamicEqualizerAudioProcessor::~DynamicEqualizerAudioProcessor()
 }
 
 //==============================================================================
-const juce::String DynamicEqualizerAudioProcessor::getName() const
+const juce::String DynResoSuppressorProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool DynamicEqualizerAudioProcessor::acceptsMidi() const
+bool DynResoSuppressorProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -67,7 +67,7 @@ bool DynamicEqualizerAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool DynamicEqualizerAudioProcessor::producesMidi() const
+bool DynResoSuppressorProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -76,7 +76,7 @@ bool DynamicEqualizerAudioProcessor::producesMidi() const
    #endif
 }
 
-bool DynamicEqualizerAudioProcessor::isMidiEffect() const
+bool DynResoSuppressorProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -85,37 +85,37 @@ bool DynamicEqualizerAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double DynamicEqualizerAudioProcessor::getTailLengthSeconds() const
+double DynResoSuppressorProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int DynamicEqualizerAudioProcessor::getNumPrograms()
+int DynResoSuppressorProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int DynamicEqualizerAudioProcessor::getCurrentProgram()
+int DynResoSuppressorProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void DynamicEqualizerAudioProcessor::setCurrentProgram (int index)
+void DynResoSuppressorProcessor::setCurrentProgram (int index)
 {
 }
 
-const juce::String DynamicEqualizerAudioProcessor::getProgramName (int index)
+const juce::String DynResoSuppressorProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void DynamicEqualizerAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void DynResoSuppressorProcessor::changeProgramName (int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void DynamicEqualizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void DynResoSuppressorProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Plot buffers
     int maxFFTSize = 16384;
@@ -129,14 +129,14 @@ void DynamicEqualizerAudioProcessor::prepareToPlay (double sampleRate, int sampl
                                       windowType);
 }
 
-void DynamicEqualizerAudioProcessor::releaseResources()
+void DynResoSuppressorProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool DynamicEqualizerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool DynResoSuppressorProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
@@ -158,7 +158,7 @@ bool DynamicEqualizerAudioProcessor::isBusesLayoutSupported (const BusesLayout& 
 }
 #endif
 
-void DynamicEqualizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void DynResoSuppressorProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedLock lock(processingLock);
     juce::ScopedNoDenormals noDenormals;
@@ -201,7 +201,7 @@ void DynamicEqualizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
 
 }
 
-void DynamicEqualizerAudioProcessor::PushSampleInBlockForPlot(float sample)
+void DynResoSuppressorProcessor::PushSampleInBlockForPlot(float sample)
 {
 
     if (N == FFTSize)
@@ -220,19 +220,19 @@ void DynamicEqualizerAudioProcessor::PushSampleInBlockForPlot(float sample)
 }
 
 //==============================================================================
-bool DynamicEqualizerAudioProcessor::hasEditor() const
+bool DynResoSuppressorProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* DynamicEqualizerAudioProcessor::createEditor()
+juce::AudioProcessorEditor* DynResoSuppressorProcessor::createEditor()
 {
-    return new DynamicEqualizerAudioProcessorEditor (*this);
+    return new DynResoSuppressorEditor (*this);
 }
 
 //==============================================================================
 
-void DynamicEqualizerAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void DynResoSuppressorProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     juce::ValueTree stateCopy = apvts.copyState();
     stateCopy.setProperty ("PlotFmin", Fmin, nullptr);
@@ -242,7 +242,7 @@ void DynamicEqualizerAudioProcessor::getStateInformation (juce::MemoryBlock& des
         copyXmlToBinary (*xml, destData);
 }
 
-void DynamicEqualizerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void DynResoSuppressorProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
 
@@ -261,11 +261,11 @@ void DynamicEqualizerAudioProcessor::setStateInformation (const void* data, int 
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new DynamicEqualizerAudioProcessor();
+    return new DynResoSuppressorProcessor();
 }
 
 
-juce::AudioProcessorValueTreeState::ParameterLayout DynamicEqualizerAudioProcessor::createParameters()
+juce::AudioProcessorValueTreeState::ParameterLayout DynResoSuppressorProcessor::createParameters()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     
@@ -335,7 +335,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout DynamicEqualizerAudioProcess
     return {params.begin(),params.end()};
 }
 
-void DynamicEqualizerAudioProcessor::parameterChanged(const juce::String &parameterID, float newValue)
+void DynResoSuppressorProcessor::parameterChanged(const juce::String &parameterID, float newValue)
 {
     // How to actually get the paramters from the parameter tree
     auto Pro                = apvts.getRawParameterValue("prominence");
@@ -378,7 +378,7 @@ void DynamicEqualizerAudioProcessor::parameterChanged(const juce::String &parame
     }
 }
 
-void DynamicEqualizerAudioProcessor::FrequencyLimitsFromPlot(float Frequency,bool IsFmin)
+void DynResoSuppressorProcessor::FrequencyLimitsFromPlot(float Frequency,bool IsFmin)
 {
     
     if(IsFmin)

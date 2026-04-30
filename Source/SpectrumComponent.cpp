@@ -10,7 +10,7 @@
 #include "SpectrumComponent.h"
 
 //==============================================================================
-SpectrumComponent::SpectrumComponent (DynamicEqualizerAudioProcessor& p)
+SpectrumComponent::SpectrumComponent (DynResoSuppressorProcessor& p)
     :  audioProcessor (p) //AudioProcessorEditor (&p)
 {
     //addAndMakeVisible(ComponentSpec);

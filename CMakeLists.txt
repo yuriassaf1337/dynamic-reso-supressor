@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.15)
-project(DynamicEqualizer VERSION 0.3)
+project(DynResoSuppressor VERSION 0.3)
 
 add_subdirectory(JUCE)
 
-juce_add_plugin(DynamicEqualizer
+juce_add_plugin(DynResoSuppressor
     PLUGIN_MANUFACTURER_CODE Dyer
     PLUGIN_CODE DyEQ
     FORMATS VST3
-    PRODUCT_NAME "DynamicEqualizer"
+    PRODUCT_NAME "dyn-reso-suppressor"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
     COPY_PLUGIN_AFTER_BUILD FALSE
 )
 
-juce_generate_juce_header(DynamicEqualizer)
+juce_generate_juce_header(DynResoSuppressor)
 
-target_sources(DynamicEqualizer PRIVATE
+target_sources(DynResoSuppressor PRIVATE
     Source/DynamicEqualizer.cpp
     Source/PluginEditor.cpp
     Source/PluginProcessor.cpp
@@ -24,14 +24,14 @@ target_sources(DynamicEqualizer PRIVATE
     Source/SpectrumPlotObject.cpp
 )
 
-target_compile_options(DynamicEqualizer PRIVATE
+target_compile_options(DynResoSuppressor PRIVATE
     "$<$<COMPILE_LANGUAGE:CXX>:SHELL:-include cstring>"
     "$<$<COMPILE_LANGUAGE:C>:SHELL:-include string.h>"
     "$<$<COMPILE_LANGUAGE:CXX>:-fpermissive>"
     -Wno-error
 )
 
-target_compile_definitions(DynamicEqualizer PUBLIC
+target_compile_definitions(DynResoSuppressor PUBLIC
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
@@ -41,7 +41,7 @@ target_compile_definitions(DynamicEqualizer PUBLIC
     JUCE_USE_WINDOWS_MEDIA_FORMAT=0
 )
 
-target_link_libraries(DynamicEqualizer
+target_link_libraries(DynResoSuppressor
     PRIVATE
         comctl32 imm32 dcomp dwmapi d2d1 d3d11 dxgi dwrite
         wininet winmm ws2_32 version shlwapi dbghelp

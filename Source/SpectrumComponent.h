@@ -18,7 +18,7 @@ class SpectrumComponent  : public juce::Component,
 private juce::Timer
 {
 public:
-    SpectrumComponent (DynamicEqualizerAudioProcessor& p);
+    SpectrumComponent (DynResoSuppressorProcessor& p);
     ~SpectrumComponent() override;
 
     //==============================================================================
@@ -36,7 +36,7 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    DynamicEqualizerAudioProcessor& audioProcessor;
+    DynResoSuppressorProcessor& audioProcessor;
     int mouseXPosition;
     int mouseYPosition;
     

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="hmYGTm" name="DynamicEqualizer" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="hmYGTm" name="DynResoSuppressor" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
-  <MAINGROUP id="kuMuKo" name="DynamicEqualizer">
+  <MAINGROUP id="kuMuKo" name="DynResoSuppressor">
     <GROUP id="{5A27F7DC-842D-7AE7-C61C-2D9D6BEAF134}" name="Source">
       <FILE id="CLcHhK" name="StyleSheet.h" compile="0" resource="0" file="Source/StyleSheet.h"/>
       <FILE id="ShgunG" name="DynamicEqualizer.cpp" compile="1" resource="0"
@@ -31,8 +31,8 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="DynamicEqualizer"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="DynamicEqualizer"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="DynResoSuppressor"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="DynResoSuppressor"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../../../../../Applications/JUCE/modules"/>

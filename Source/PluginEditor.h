@@ -15,11 +15,11 @@
 //==============================================================================
 /**
 */
-class DynamicEqualizerAudioProcessorEditor  : public juce::AudioProcessorEditor
+class DynResoSuppressorEditor  : public juce::AudioProcessorEditor
 {
 public:
-    DynamicEqualizerAudioProcessorEditor (DynamicEqualizerAudioProcessor&);
-    ~DynamicEqualizerAudioProcessorEditor() override;
+    DynResoSuppressorEditor (DynResoSuppressorProcessor&);
+    ~DynResoSuppressorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -67,12 +67,12 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> ResolutionAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> PassThroughAttachment;
 
-    DynamicEqualizerAudioProcessor& audioProcessor;
+    DynResoSuppressorProcessor& audioProcessor;
     
     CustomLookAndFeel LookAndFeel;
     
     const int GUI_HEIGHT = 400;
     const int GUI_WIDTH  = 1200;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DynamicEqualizerAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DynResoSuppressorEditor)
 };
