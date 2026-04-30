@@ -27,5 +27,8 @@
 #   custom prefix: "$WINEPREFIX/drive_c/Program Files/Common Files/VST3"
 : "${VST3_INSTALL_DIR:=$HOME/.wine/drive_c/Program Files/Common Files/VST3}"
 
-# must match PRODUCT_NAME in CMakeLists.txt
+# must match the target name in CMakeLists.txt
 : "${PLUGIN_NAME:=DynResoSuppressor}"
+
+# must match the PRODUCT_NAME in CMakeLists.txt
+: "${PRODUCT_NAME:=dyn-reso-suppressor}"

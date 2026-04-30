@@ -5,7 +5,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$REPO_ROOT/scripts/config.sh"
 
 BUILD_PATH="$REPO_ROOT/$BUILD_DIR"
-VST3_BUNDLE="$BUILD_PATH/${PLUGIN_NAME}_artefacts/$BUILD_TYPE/VST3/${PLUGIN_NAME}.vst3"
+VST3_BUNDLE="$BUILD_PATH/${PLUGIN_NAME}_artefacts/$BUILD_TYPE/VST3/${PRODUCT_NAME}.vst3"
 
 # ── commands ──────────────────────────────────────────────────────────────────
 
@@ -39,7 +39,7 @@ cmd_install() {
         exit 1
     fi
 
-    echo "==> installing ${PLUGIN_NAME}.vst3 ..."
+    echo "==> installing ${PRODUCT_NAME}.vst3 ..."
     echo "    -> $VST3_INSTALL_DIR"
     mkdir -p "$VST3_INSTALL_DIR"
     cp -r "$VST3_BUNDLE" "$VST3_INSTALL_DIR/"

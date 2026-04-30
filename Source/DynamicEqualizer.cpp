@@ -143,22 +143,25 @@ void DynamicEqualizer::modification()
     const float MinAcceptableValue = 1;
     for(int idx=0;idx<NumberOfPeaks;idx++)
     {
-        if(MaxPeak*0.01>AmpList[idx] || MaxPeak<MinAcceptableValue) // Take only peaks at a threshold from maximum
+        const size_t s_idx = static_cast<size_t>(idx);
+        if(MaxPeak*0.01>AmpList[s_idx] || MaxPeak<MinAcceptableValue) // Take only peaks at a threshold from maximum
             continue;
         
-        const float CurrentFreq = FreqList[idx];
-        const int CurrentPeakIdx = FreqIntList[idx];
+        const float CurrentFreq = FreqList[s_idx];
+        const int CurrentPeakIdx = FreqIntList[s_idx];
+        const size_t s_peak = static_cast<size_t>(CurrentPeakIdx);
         
         // Update only a local region for each peak
-        const float localDf =LogFreqVector[CurrentPeakIdx+1]-LogFreqVector[CurrentPeakIdx];
+        const float localDf =LogFreqVector[s_peak+1]-LogFreqVector[s_peak];
         const int interval = static_cast<int>(   40*Var/localDf  ); // 40 works fine
-        const int startIdxF = std::max( FreqIntList[idx] - interval,1);
-        const int endIdxF   =  std::min( FreqIntList[idx] + interval, halfFFTSize );
+        const int startIdxF = std::max( FreqIntList[s_idx] - interval,1);
+        const int endIdxF   =  std::min( FreqIntList[s_idx] + interval, halfFFTSize );
         
         for(int idxF = startIdxF; idxF < endIdxF; idxF++)
         {
-            const auto diff =LogFreqVector[idxF]-CurrentFreq;
-            TF[idxF] *= (1-CurrentAmp*fast_exp(-( ( diff*diff ))/Var));
+            const size_t s_idxF = static_cast<size_t>(idxF);
+            const auto diff =LogFreqVector[s_idxF]-CurrentFreq;
+            TF[s_idxF] *= (1-CurrentAmp*fast_exp(-( ( diff*diff ))/Var));
         }
 
     }
@@ -166,15 +169,16 @@ void DynamicEqualizer::modification()
 // Time smoothing
 for(int idx = 1; idx < halfFFTSize; idx++)
 {
+    const size_t s_idx = static_cast<size_t>(idx);
     // Exponential moving average for TF
-    TF[idx] = (TF[idx])*(1-AverageRatioTF)+TFOld[idx]*AverageRatioTF;
+    TF[s_idx] = (TF[s_idx])*(1-AverageRatioTF)+TFOld[s_idx]*AverageRatioTF;
     
-    TFOld[idx] = TF[idx];
+    TFOld[s_idx] = TF[s_idx];
     
-    TFreal[idx] =  TF[idx];
+    TFreal[idx] =  TF[s_idx];
 
     // Clean array for next iteration
-    TF[idx] =1 ;
+    TF[s_idx] = 1 ;
 }
     
     
@@ -246,7 +250,7 @@ void DynamicEqualizer::UpdateParameters(float _Prominence, float _Width,float _P
     Wet                = _Wet;
     AverageRatioTF     = 1-speed;
     passThrough        = _passThrough;
-    const float df     = SamplingRate/fftSize;
+    df                 = SamplingRate/fftSize;
     lowFreqIdx         = std::fmax(3, static_cast<int>(fmin/df)  );
     HighFreqIdx        = std::fmin(  fftSize/2, static_cast<int>(fmax/df)  );
     

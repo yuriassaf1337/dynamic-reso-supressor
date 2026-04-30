@@ -41,11 +41,11 @@ private:
     int mouseYPosition;
     
     int ColorBackground[4]      = {22, 27, 34, 255};
-    int ColorText[4]            = {139, 148, 158, 255};
+    int ColorText[4]            = {160, 170, 180, 255};
     int ColorCursor[4]          = {255, 121, 198, 255};
-    int ColorLines[4]           = {255, 255, 255, 18};
+    int ColorLines[4]           = {255, 255, 255, 40};
     int ColorSpectrumLine[4]    = {0, 255, 255, 255};
-    int ColorSpectrumSurface[4] = {0, 255, 255, 25};
+    int ColorSpectrumSurface[4] = {0, 255, 255, 45};
     
     
     float PosStart   = 2.99573227355; //std::log(20);

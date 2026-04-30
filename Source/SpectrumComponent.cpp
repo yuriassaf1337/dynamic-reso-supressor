@@ -82,7 +82,7 @@ void SpectrumComponent::paint (juce::Graphics& g)
             float logDf      = std::log(df);
             
             
-            g.setFont (12.0f);
+            g.setFont (15.0f);
             
             for (int idx=0;idx<9;idx++)
             {

@@ -1,210 +1,197 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-//==============================================================================
-DynResoSuppressorEditor::DynResoSuppressorEditor (DynResoSuppressorProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p),Spectrum(p)
+DynResoSuppressorEditor::DynResoSuppressorEditor(DynResoSuppressorProcessor& p)
+    : AudioProcessorEditor(&p), audio_processor(p), Spectrum(p)  // order matches declaration
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    //setSize (1200, 400);
-    setSize (GUI_WIDTH, GUI_HEIGHT);
-    
-    // Apply our custom style to the whole editor
-    setLookAndFeel(&LookAndFeel);
-    
-    // add objects
-    sliderSensibility.setSliderStyle(juce::Slider::SliderStyle::Rotary);
-    sliderSensibility.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    labelSensibility.setText("Sensitivity", juce::NotificationType::dontSendNotification);
-    labelSensibility.setJustificationType(juce::Justification::centredTop);
-    
-    sliderSharpness.setSliderStyle(juce::Slider::SliderStyle::Rotary);
-    sliderSharpness.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    labelSharpness.setText("Sharpness", juce::NotificationType::dontSendNotification);
-    labelSharpness.setJustificationType(juce::Justification::centredTop);
-    
-    
-    sliderGain.setSliderStyle(juce::Slider::SliderStyle::Rotary);
-    sliderGain.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
-    labelGain.setText("Resonance Gain dB", juce::NotificationType::dontSendNotification);
-    labelGain.setJustificationType(juce::Justification::centredTop);
-    
-    sliderWet.setSliderStyle(juce::Slider::SliderStyle::Rotary);
-    sliderWet.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    labelWet.setText("Wet", juce::NotificationType::dontSendNotification);
-    labelWet.setJustificationType(juce::Justification::centredTop);
-    
-    
-    sliderMakeUp.setSliderStyle(juce::Slider::SliderStyle::Rotary);
-    sliderMakeUp.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    labelMakeUp.setText("MakeUp", juce::NotificationType::dontSendNotification);
-    labelMakeUp.setJustificationType(juce::Justification::centredTop);
-    
-    sliderFmin.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
-    sliderFmin.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    
-    labelsliderFmin.setText("Frequency to start filters", juce::NotificationType::dontSendNotification);
-    labelsliderFmin.setJustificationType(juce::Justification::centredTop);
-    
-    sliderFmax.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
-    sliderFmax.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    labelsliderFmax.setText("Frequency to stop filters", juce::NotificationType::dontSendNotification);
-    labelsliderFmax.setJustificationType(juce::Justification::centredTop);
-    
-    
-    sliderSpeed.setSliderStyle(juce::Slider::SliderStyle::Rotary);
-    sliderSpeed.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    labelsliderSpeed.setText("Speed", juce::NotificationType::dontSendNotification);
-    labelsliderSpeed.setJustificationType(juce::Justification::centredTop);
-    
-    
-    ComboBoxResolution.addItemList(juce::StringArray {"1024","2048","4096","8192","16384"}, 1);
-    labelResolution.setText("FFT size (resolution)",juce::NotificationType::dontSendNotification);
-    labelResolution.setJustificationType(juce::Justification::centredTop);
-    
-    
-    ButtonPassThrough.setButtonText("Passthrough");
+    setSize(GUI_WIDTH, GUI_HEIGHT);
+    setLookAndFeel(&look_and_feel);
 
-    
-    // Button labels
-    ButtonHearDiff.setButtonText("Difference");
-    
-    labelsliderFmin.setText("Start Frequency", juce::NotificationType::dontSendNotification);
-    labelsliderFmax.setText("End Frequency", juce::NotificationType::dontSendNotification);
-    
-    labelCredits.setText("DyERS V 0.3 by Thiago Lobato", juce::NotificationType::dontSendNotification);
-    labelCredits.setJustificationType(juce::Justification::centredRight);
-    addAndMakeVisible(labelCredits);
-    // Make it visible
+    // --- Title bar ---
+    label_title.setText("Dy-Reso-Supress", juce::dontSendNotification);
+    label_title.setFont(look_and_feel.getHackFont(26.0f).boldened());
+    label_title.setColour(juce::Label::textColourId, juce::Colours::white);
+
+    label_subtitle.setText("DYNAMIC RESONANCE SUPPRESSOR", juce::dontSendNotification);
+    label_subtitle.setFont(look_and_feel.getHackFont(11.0f));
+    label_subtitle.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(0.35f));
+
+    // --- Rotary knobs ---
+    auto make_rotary = [](juce::Slider& s) {
+        s.setSliderStyle(juce::Slider::Rotary);
+        s.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+    };
+
+    make_rotary(slider_sensibility);
+    make_rotary(slider_sharpness);
+    make_rotary(slider_speed);
+    make_rotary(slider_wet);
+    make_rotary(slider_makeup);
+
+    slider_gain.setSliderStyle(juce::Slider::Rotary);
+    slider_gain.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+
+    // --- Linear sliders ---
+    slider_fmin.setSliderStyle(juce::Slider::LinearHorizontal);
+    slider_fmin.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+
+    slider_fmax.setSliderStyle(juce::Slider::LinearHorizontal);
+    slider_fmax.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+
+    // --- Labels ---
+    auto make_label = [](juce::Label& l, const juce::String& text) {
+        l.setText(text, juce::dontSendNotification);
+        l.setJustificationType(juce::Justification::centredTop);
+        l.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(0.4f));
+    };
+
+    make_label(label_sensibility, "SENSITIVITY");
+    make_label(label_sharpness,   "SHARPNESS");
+    make_label(label_gain,        "RESONANCE GAIN");
+    make_label(label_wet,         "WET");
+    make_label(label_makeup,      "MAKEUP");
+    make_label(label_speed,       "SPEED");
+    make_label(label_fmin,        "START FREQ");
+    make_label(label_fmax,        "END FREQ");
+
+    label_credits.setText("V 0.3  Thiago Lobato", juce::dontSendNotification);
+    label_credits.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(0.25f));
+    label_credits.setJustificationType(juce::Justification::centredLeft);
+
+    // --- Buttons ---
+    btn_diff.setButtonText("DIFF");
+    btn_pass.setButtonText("PASS");
+
+    // --- Combo ---
+    combo_resolution.addItemList({"FFT 1024", "FFT 2048", "FFT 4096", "FFT 8192", "FFT 16384"}, 1);
+
+    // --- Visibility ---
+    addAndMakeVisible(label_title);
+    addAndMakeVisible(label_subtitle);
+    addAndMakeVisible(btn_diff);
+    addAndMakeVisible(btn_pass);
+    addAndMakeVisible(combo_resolution);
     addAndMakeVisible(Spectrum);
-    addAndMakeVisible(sliderSensibility); addAndMakeVisible(labelSensibility);
-    addAndMakeVisible(sliderSharpness); addAndMakeVisible(labelSharpness);
-    addAndMakeVisible(sliderGain); addAndMakeVisible(labelGain);
-    addAndMakeVisible(sliderWet); addAndMakeVisible(labelWet);
-    addAndMakeVisible(sliderMakeUp); addAndMakeVisible(labelMakeUp);
-    addAndMakeVisible(ButtonHearDiff); addAndMakeVisible(labelHearDiff);
-    addAndMakeVisible(sliderSpeed); addAndMakeVisible(labelsliderSpeed);
-    addAndMakeVisible(ComboBoxResolution); addAndMakeVisible(labelResolution);
-    addAndMakeVisible(ButtonPassThrough); addAndMakeVisible(labelPassThrough);
+    addAndMakeVisible(slider_gain);    addAndMakeVisible(label_gain);
+    addAndMakeVisible(slider_sensibility); addAndMakeVisible(label_sensibility);
+    addAndMakeVisible(slider_sharpness);   addAndMakeVisible(label_sharpness);
+    addAndMakeVisible(slider_speed);       addAndMakeVisible(label_speed);
+    addAndMakeVisible(slider_makeup);      addAndMakeVisible(label_makeup);
+    addAndMakeVisible(slider_wet);         addAndMakeVisible(label_wet);
+    addAndMakeVisible(slider_fmin);        addAndMakeVisible(label_fmin);
+    addAndMakeVisible(slider_fmax);        addAndMakeVisible(label_fmax);
+    addAndMakeVisible(label_credits);
 
-    // Add atachments
-    sliderSensibilityAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"prominence",sliderSensibility);
-    sliderSharpnessAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"width",sliderSharpness);
-    sliderGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"gain",sliderGain);
-    sliderWetAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"wet",sliderWet);
-    sliderMakeUpAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"makeup",sliderMakeUp);
-    HearDiffAttachment    = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts,"onlyDiff",ButtonHearDiff);
-    PassThroughAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts,"passThrough",ButtonPassThrough);
-    sliderMakeUpAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"makeup",sliderMakeUp);
-    sliderFminAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"fmin",sliderFmin);
-    sliderFmaxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"fmax",sliderFmax);
-    sliderSpeedAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts,"speed",sliderSpeed);
-    ResolutionAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts,"fftsize",ComboBoxResolution);
-        
+    // --- Attachments ---
+    att_sensibility = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audio_processor.apvts, "prominence", slider_sensibility);
+    att_sharpness   = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audio_processor.apvts, "width",      slider_sharpness);
+    att_gain        = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audio_processor.apvts, "gain",       slider_gain);
+    att_wet         = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audio_processor.apvts, "wet",        slider_wet);
+    att_makeup      = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audio_processor.apvts, "makeup",     slider_makeup);
+    att_speed       = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audio_processor.apvts, "speed",      slider_speed);
+    att_fmin        = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audio_processor.apvts, "fmin",       slider_fmin);
+    att_fmax        = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audio_processor.apvts, "fmax",       slider_fmax);
+    att_diff        = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audio_processor.apvts, "onlyDiff",   btn_diff);
+    att_pass        = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audio_processor.apvts, "passThrough",btn_pass);
+    att_resolution  = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audio_processor.apvts, "fftsize", combo_resolution);
 }
 
 DynResoSuppressorEditor::~DynResoSuppressorEditor()
 {
-    setLookAndFeel(nullptr); // Important! Detach before destruction
+    setLookAndFeel(nullptr);
 }
 
-//==============================================================================
-void DynResoSuppressorEditor::paint (juce::Graphics& g)
+void DynResoSuppressorEditor::paint(juce::Graphics& g)
 {
-    // Component is opaque, so we must completely fill the background with a solid colour)
-    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    g.fillAll (juce::Colour::fromRGB(30, 30, 30));
+    g.fillAll(juce::Colour::fromRGB(15, 15, 16));
+
+    // Top bar background
+    g.setColour(juce::Colour::fromRGB(22, 22, 23));
+    g.fillRect(0, 0, getWidth(), TOP_BAR_H);
+
+    // Top bar bottom border
+    g.setColour(juce::Colours::white.withAlpha(0.05f));
+    g.drawHorizontalLine(TOP_BAR_H, 0.0f, (float)getWidth());
 }
 
 void DynResoSuppressorEditor::resized()
 {
-    
-    auto area = getLocalBounds();
+    auto full = getLocalBounds();
 
-    // 1. Place Spectrum on the Right
-    Spectrum.setBounds(area.removeFromRight((int)(area.getWidth() * 0.6)));
+    // --- Top bar ---
+    auto top_bar = full.removeFromTop(TOP_BAR_H);
 
-    // 2. Helper lambda
-    auto placeControl = [this](juce::Rectangle<int> r, juce::Slider& slider, juce::Label& label)
-    {
-        label.setBounds(r.removeFromBottom(20));
-        slider.setBounds(r);
+    // Title block on left
+    auto title_block = top_bar.removeFromLeft(350).reduced(12, 0);
+    label_title.setBounds(title_block.removeFromTop(34).withTrimmedTop(10));
+    label_subtitle.setBounds(title_block.removeFromTop(18));
+
+    // Controls on right: [DIFF] [PASS] [FFT combo]
+    auto controls = top_bar.removeFromRight(300).reduced(0, 14);
+    combo_resolution.setBounds(controls.removeFromRight(130).reduced(4, 0));
+    btn_pass.setBounds(controls.removeFromRight(60).reduced(4, 0));
+    btn_diff.setBounds(controls.removeFromRight(60).reduced(4, 0));
+
+    // --- Left panel ---
+    auto panel = full.removeFromLeft(350);
+
+    // --- Spectrum (takes the rest) ---
+    Spectrum.setBounds(full);
+
+    auto place_rotary = [](juce::Rectangle<int> r, juce::Slider& s, juce::Label& l) {
+        l.setBounds(r.removeFromBottom(24));
+        s.setBounds(r);
     };
 
-    // 3. Setup FlexBox
-    juce::FlexBox mainColumn;
-    mainColumn.flexDirection = juce::FlexBox::Direction::column;
-    
-    // --- ROW 1 ---
-    juce::FlexItem topRowItem;
-    topRowItem.flexGrow = 2.0f;
-    mainColumn.items.add(topRowItem.withMargin(5));
+    // Row 1 — Resonance Gain (big, centred)
+    auto row1 = panel.removeFromTop((int)(panel.getHeight() * 0.35f));
+    {
+        int knob_w = juce::jmin(row1.getWidth(), row1.getHeight() - 10);
+        auto gain_bounds = row1.withSizeKeepingCentre(knob_w, row1.getHeight()).reduced(8);
+        place_rotary(gain_bounds, slider_gain, label_gain);
+    }
 
-    // --- ROW 2 ---
-    juce::FlexItem midRowItem;
-    midRowItem.flexGrow = 1.5f;
-    mainColumn.items.add(midRowItem.withMargin(5));
+    // Row 2 — Sensitivity & Sharpness
+    auto row2 = panel.removeFromTop((int)(panel.getHeight() * 0.28f));
+    {
+        int w = row2.getWidth() / 2;
+        place_rotary(row2.removeFromLeft(w).reduced(16, 6), slider_sensibility, label_sensibility);
+        place_rotary(row2.reduced(16, 6), slider_sharpness, label_sharpness);
+    }
 
-    // --- ROW 3 ---
-    juce::FlexItem botRowItem;
-    botRowItem.flexGrow = 1.25f;
-    mainColumn.items.add(botRowItem.withMargin(5));
+    // Row 3 — Makeup & Wet
+    auto row3 = panel.removeFromTop((int)(panel.getHeight() * 0.38f));
+    {
+        int w = row3.getWidth() / 2;
+        place_rotary(row3.removeFromLeft(w).reduced(16, 6), slider_makeup, label_makeup);
+        place_rotary(row3.reduced(16, 6), slider_wet, label_wet);
+    }
 
-    // 4. Perform Layout
-    // Note: area is currently int, but performLayout handles the conversion internally
-    mainColumn.performLayout(area);
-    
-    // === ROW 1 LOGIC ===
-    // FIX: Convert 'currentBounds' (float) to 'int' using .toNearestInt()
-    auto topRowBounds = mainColumn.items[0].currentBounds.toNearestInt().reduced(5);
-    
-    auto utilsBounds = topRowBounds.removeFromRight(topRowBounds.getWidth() / 3);
-    auto gainBounds  = topRowBounds;
-    
-    placeControl(gainBounds, sliderGain, labelGain);
+    // Row 4 — Speed (Centered)
+    auto row4 = panel.removeFromTop(60);
+    {
+        int w = row4.getWidth() / 2;
+        auto speed_bounds = row4.withSizeKeepingCentre(w, row4.getHeight()).reduced(0, 6);
+        place_rotary(speed_bounds, slider_speed, label_speed);
+    }
 
-    // Utilities
-    int utilHeight = utilsBounds.getHeight() / 3;
-    
-    auto resRow = utilsBounds.removeFromTop(utilHeight);
-    labelResolution.setBounds(resRow.removeFromBottom(25));
-    ComboBoxResolution.setBounds(resRow);
-    
-    auto hearRow = utilsBounds.removeFromTop(utilHeight);
-    labelHearDiff.setBounds(hearRow.removeFromRight(50));
-    ButtonHearDiff.setBounds(hearRow);
-    
-    labelPassThrough.setBounds(utilsBounds.removeFromRight(50));
-    ButtonPassThrough.setBounds(utilsBounds);
+    // Row 5 — Fmin / Fmax sliders at the bottom
+    auto row5 = panel;
+    {
+        auto fmin_row = row5.removeFromTop(row5.getHeight() / 2).reduced(10, 0);
+        label_fmin.setBounds(fmin_row.removeFromTop(12));
+        slider_fmin.setBounds(fmin_row);
 
-    // === ROW 2 LOGIC ===
-    auto midRowBounds = mainColumn.items[1].currentBounds.toNearestInt().reduced(5);
-    
-    int sliderWidth = midRowBounds.getWidth() / 3;
-    
-    placeControl(midRowBounds.removeFromLeft(sliderWidth).reduced(5), sliderSensibility, labelSensibility);
-    placeControl(midRowBounds.removeFromLeft(sliderWidth).reduced(5), sliderSharpness, labelSharpness);
-    placeControl(midRowBounds.reduced(5), sliderSpeed, labelsliderSpeed);
+        auto fmax_row = row5.reduced(10, 0);
+        label_fmax.setBounds(fmax_row.removeFromTop(12));
+        slider_fmax.setBounds(fmax_row);
+    }
+}
 
-    // === ROW 3 LOGIC ===
-    auto botRowBounds = mainColumn.items[2].currentBounds.toNearestInt().reduced(5);
-    
-    auto outputSection = botRowBounds.removeFromRight(200);
-    int outKnobWidth = outputSection.getWidth() / 2;
-    
-    placeControl(outputSection.removeFromLeft(outKnobWidth).reduced(5), sliderMakeUp, labelMakeUp);
-    placeControl(outputSection.reduced(5), sliderWet, labelWet);
-
-    labelCredits.setBounds(botRowBounds);
-    labelCredits.setJustificationType(juce::Justification::centredLeft);
-
+void DynResoSuppressorEditor::parentHierarchyChanged()
+{
+    if (auto* peer = getPeer())
+    {
+        peer->setCurrentRenderingEngine(0); // 0 corresponds to the software renderer
+    }
 }

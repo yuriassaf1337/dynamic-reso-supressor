@@ -14,6 +14,10 @@ juce_add_plugin(DynResoSuppressor
     COPY_PLUGIN_AFTER_BUILD FALSE
 )
 
+juce_add_binary_data(PluginData SOURCES
+    assets/fonts/Hack-Regular.ttf
+)
+
 juce_generate_juce_header(DynResoSuppressor)
 
 target_sources(DynResoSuppressor PRIVATE
@@ -39,13 +43,13 @@ target_compile_definitions(DynResoSuppressor PUBLIC
     JUCE_USE_ACCESSIBILITY=0
     JUCE_USE_JPEGLIB=0
     JUCE_USE_WINDOWS_MEDIA_FORMAT=0
+    JUCE_DIRECT2D=0
 )
 
 target_link_libraries(DynResoSuppressor
     PRIVATE
-        comctl32 imm32 dcomp dwmapi d2d1 d3d11 dxgi dwrite
-        wininet winmm ws2_32 version shlwapi dbghelp
-        ole32 oleaut32 uuid kernel32 user32 advapi32 shell32
+        PluginData
+        $<$<PLATFORM_ID:Windows>:comctl32;imm32;dcomp;dwmapi;d2d1;d3d11;dxgi;dwrite;wininet;winmm;ws2_32;version;shlwapi;dbghelp;ole32;oleaut32;uuid;kernel32;user32;advapi32;shell32;sapi>
         juce::juce_audio_basics
         juce::juce_audio_devices
         juce::juce_audio_formats
