@@ -39,3 +39,44 @@
 
 # debug information files
 *.dwo
+
+# ai files
+.claude/
+.antigravity/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+cmake-build-*/
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# Build output
+build/
+out/
+bin/
+lib/
+
+# JUCE / Projucer generated
+JuceLibraryCode/
+*.jucer.bak
+
+# VST / AU binaries
+*.vst
+*.vst3
+*.component
+*.aax
+
+# macOS junk
+.DS_Store
+__MACOSX/
+
+# Linux editor / tool noise
+.cache/
+*.swp
+*.swo
+CLAUDE.md
