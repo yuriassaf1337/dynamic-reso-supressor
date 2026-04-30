@@ -3,6 +3,8 @@
 this is a fork from [original](https://github.com/Thiagohgl/DyERS-dynamic-resonance-suppressor)
 read the original README.md in og_README.md.
 
+<img width="1200" height="406" alt="UI" src="https://github.com/user-attachments/assets/5ac336a7-a177-410f-bc4d-219507a460a0" />
+
 ## building
 
 this project cross-compiles a Windows VST3 from Linux using MinGW-w64 and JUCE 8.
